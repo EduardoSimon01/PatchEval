@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Salidas de corrida. Los perfiles se regeneran ejecutando el prototipo sobre los identificadores declarados, asi que no tiene sentido versionarlos.
+# La excepcion es que los del corpus final, que se guardan aparte en resultados.
+*.json
+!resultados/*.json
+
+# Los repositorios clonados para evaluar. Pesan cientos de megabytes.
+corpus/
+
+# Sistema
+.DS_Store
+.idea/
+.vscode/

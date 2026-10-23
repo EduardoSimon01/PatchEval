@@ -1,0 +1,9 @@
+# Acceso al historial de versiones. Es la unica dependencia que se usa desde el primer hito las otras dos entran con los modulos de metricas.
+GitPython==3.1.43
+
+# Complejidad de lenguajes. Se eligio por ser multilenguaje: los proyectos cloud-native rara vez estan escritos en un solo lenguaje y una herramienta.
+lizard==1.17.10
+
+# Lectura de manifiestos. Lo que nos importa es que sea un parser y no busqueda de patronessobre el texto porque hace falta 
+# distinguir un valor escrito directamente de una referencia a un Secret, y eso solo se ve recorriendo la estructura.
+PyYAML==6.0.2
