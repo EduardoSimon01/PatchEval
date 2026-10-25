@@ -10,6 +10,8 @@ import argparse
 import sys
 
 from . import Repositorio, __version__
+from .metrics import complexity
+from .metrics import complexity, dispersion
 
 
 def main(argv=None):
@@ -55,8 +57,26 @@ def main(argv=None):
     # desde entonces, y la dispersion se mide contra el sistema tal como estaba.
     print(f"  servicios del repo  {len(repo.servicios(c.sha))}")
 
+        # Medimos la complejidad
+    s = complexity.medir(repo, c)
     print()
-    print("  Las metricas de eficacia y costo entran en los hitos H2 a H5.")
+    print("  COSTO ESTRUCTURAL")
+    print(f"    archivos de codigo  {s['archivos_codigo']}")
+    print(f"    complejidad antes   {s['ccn_antes']}")
+    print(f"    complejidad despues {s['ccn_despues']}")
+    # El :+d fuerza el signo para saber si es + o - pq sino si es positivo sale sin signo
+    print(f"    variacion .........  {s['delta_ccn']:+d}")
+
+        # Se mide la dispersion
+    disp = dispersion.medir(repo, c)
+    print()
+    print("  DISPERSION DEL CAMBIO")
+    print(f"    servicios afectados {disp['servicios_afectados']} de {disp['servicios_totales']}")
+    print(f"    proporcion ........ {disp['proporcion']}")
+    print(f"    manifiestos ....... {disp['manifiestos_modificados']}")
+    print()
+
+    print("  Las metricas de eficacia y despliegue entran en los hitos H3 y H4.")
     return 0
 
 
