@@ -10,8 +10,7 @@ import argparse
 import sys
 
 from . import Repositorio, __version__
-from .metrics import complexity
-from .metrics import complexity, dispersion
+from .metrics import complexity, dispersion, deployment
 
 
 def main(argv=None):
@@ -42,7 +41,7 @@ def main(argv=None):
         # El mensaje va a la salida de error, no a la normal. Asi por si alguien encadena varias corridas y redirige la salida a un
         # archivo, los errores siguen apareciendo en pantalla.
         print(f"error: {exc}", file=sys.stderr)
-        # Codigo distinto de cero si salio bien.
+        # Codigo distinto de cero si salio mal.
         return 1
 
     # Reporte que se ve en pantalla
@@ -76,7 +75,20 @@ def main(argv=None):
     print(f"    manifiestos ....... {disp['manifiestos_modificados']}")
     print()
 
-    print("  Las metricas de eficacia y despliegue entran en los hitos H3 y H4.")
+        # Se mide el impacto sobre la configuracion de despliegue
+    g = deployment.medir(repo, c)
+    print()
+    print("  COSTO DE DESPLIEGUE")
+    print(f"    manifiestos ....... {g['manifiestos_analizados']}")
+    print(f"    introducidas ...... {g['total_introducidas']} (ponderado {g['ponderado_introducidas']})")
+    print(f"    resueltas ......... {g['total_resueltas']} (ponderado {g['ponderado_resueltas']})")
+    # Las categorias se listan solo si hay algo que listar .
+    for k, v in g["introducidas"].items():
+        print(f"      + {deployment.CATEGORIAS[k]['etiqueta']}: {v}")
+    for k, v in g["resueltas"].items():
+        print(f"      - {deployment.CATEGORIAS[k]['etiqueta']}: {v}")
+
+    print("  La metrica de eficacia entra en el hito H4.")
     return 0
 
 

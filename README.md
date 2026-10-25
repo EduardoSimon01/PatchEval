@@ -10,7 +10,7 @@ Escuela de Ingeniería en Ciencias y Sistemas, Facultad de Ingeniería, Universi
 
 Dado un repositorio y el identificador de una corrección de seguridad, el prototipo calcula un perfil de evaluación en dos dimensiones.
 
-Eficacia: Se divide en dos subdimensiones. La fiabilidad indica si alguientuvo que volver sobre las mismas líneas que la corrección dejó, dentro de una ventana de tiempo declarada, con un cambio que señale que quedó incompleta. La completitud indica si la corrección atacó la causa del problema o solamente una de sus manifestaciones.
+Eficacia: Se divide en dos subdimensiones. La fiabilidad indica si alguien tuvo que volver sobre las mismas líneas que la corrección dejó, dentro de una ventana de tiempo declarada, con un cambio que señale que quedó incompleta. La completitud indica si la corrección atacó la causa del problema o solamente una de sus manifestaciones.
 
 El prototipo determina la primera y no determina la segunda. Establecer la completitud exige una inferencia sobre el significado del código que el prototipo no está en condiciones de sostener, de modo que queda declarada como parte del marco pero su determinación es manual.
 
@@ -24,7 +24,7 @@ En construcción. El plan avanza por hitos y cada uno deja algo que se puede eje
 |------|---------------|--------|
 | H1 | Acceso al repositorio y al par de versiones | listo |
 | H2 | Impacto estructural y dispersión del cambio | listo |
-| H3 | Impacto de despliegue sobre manifiestos | pendiente |
+| H3 | Impacto de despliegue sobre manifiestos | listo |
 | H4 | Fiabilidad de la corrección | pendiente |
 | H5 | Construcción del perfil y clasificación | pendiente |
 | H6 | Aplicación al corpus completo | pendiente |
@@ -34,8 +34,8 @@ En construcción. El plan avanza por hitos y cada uno deja algo que se puede eje
 Requiere Python 3.10 o superior.
 
 ```bash
-git clone https://github.com/<usuario>/patcheval.git
-cd patcheval
+git clone https://github.com/EduardoSimon01/PatchEval.git
+cd PatchEval
 pip install -r requirements.txt
 ```
 
@@ -43,26 +43,55 @@ No hace falta configurar nada más. El prototipo no usa base de datos, no levant
 
 ## Uso
 
-Por el momento solo está disponible la capa de acceso al repositorio:
+El prototipo trabaja sobre un repositorio ya clonado en el disco. Entra a esa carpeta y consulta el historial de git directamente: no usa la API de GitHub ni necesita conexión. Si en lugar de una carpeta se le entrega una URL, la clona él y después trabaja sobre esa copia local.
+
+Para tener un repositorio sobre el que probar:
+
+```bash
+git clone --filter=blob:none https://github.com/argoproj/argo-cd.git C:\Users\<usuario>\corpus\argo-cd
+```
+
+El filtro baja el historial completo pero sin el contenido de los archivos, que se trae a medida que se pide. Son unos 60 MB en vez de 470.
+
+Desde la terminal:
+
+```powershell
+python -m patcheval --repo C:\Users\<usuario>\corpus\argo-cd --commit 2df5f7572
+```
+
+Desde código:
 
 ```python
 from patcheval import Repositorio
+from patcheval.metrics import complexity, deployment, dispersion
 
-repo = Repositorio("/ruta/a/argo-cd")
+repo = Repositorio(r"C:\Users\<usuario>\corpus\argo-cd")
 c = repo.cargar_correccion("2df5f7572")
 
 print(c.mensaje)
 print(f"{len(c.archivos)} archivos, +{c.total_agregadas} / -{c.total_eliminadas}")
-print(f"servicios del sistema: {len(repo.servicios())}")
+print(complexity.medir(repo, c)["delta_ccn"])
+print(dispersion.medir(repo, c)["proporcion"])
+print(deployment.medir(repo, c)["total_introducidas"])
 ```
 
-También acepta una URL, en cuyo caso clona el repositorio:
 
-```python
-repo = Repositorio("https://github.com/argoproj/argo-cd.git")
+
+## Cómo verificar lo que hay hasta ahora
+
+### Las pruebas del detector
+
+```powershell
+python -m unittest discover tests
 ```
 
-La interfaz de línea de comandos y la ventana de escritorio entran en los hitos siguientes.
+Tienen que dar 22 OK. 
+
+El detector de configuraciones inseguras se verifica con manifiestos construidos para la prueba y por cada categoría hay un caso donde la configuración insegura está presente y otro donde está resuelta de la forma correcta.
+
+Se hace así y no sobre un caso real porque el detector no reporta nada sobre una corrección del corpus, pero es porque todo esta bien, entonces con los tests se valida el funcionamiento.
+
+
 
 ## Proyectos sobre los que se aplica
 
@@ -83,4 +112,4 @@ Cada corrección se identifica por su proyecto y por el identificador de su conf
 
 ## Licencia
 
-MIT. Ver el archivo LICENSE. 
+MIT. Ver el archivo LICENSE.
