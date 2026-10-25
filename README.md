@@ -23,7 +23,7 @@ En construcción. El plan avanza por hitos y cada uno deja algo que se puede eje
 | Hito | Qué construye | Estado |
 |------|---------------|--------|
 | H1 | Acceso al repositorio y al par de versiones | listo |
-| H2 | Impacto estructural y dispersión del cambio | pendiente |
+| H2 | Impacto estructural y dispersión del cambio | listo |
 | H3 | Impacto de despliegue sobre manifiestos | pendiente |
 | H4 | Fiabilidad de la corrección | pendiente |
 | H5 | Construcción del perfil y clasificación | pendiente |
