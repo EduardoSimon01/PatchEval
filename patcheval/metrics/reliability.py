@@ -101,7 +101,8 @@ def medir(repo, correccion, limite_archivos=25, ventana_dias=VENTANA_DIAS):
 
     for ruta in rutas:
         for inicio, fin in repo.rangos_modificados(correccion, ruta):
-            for sha, marca, asunto in repo.commits_sobre_rango(ruta, inicio, fin):
+            # Se le pasa la fecha de la correccion para que git no recorra la historia anterior aunque de todos modos se descarta unas lineas mas abajo.
+            for sha, marca, asunto in repo.commits_sobre_rango(ruta, inicio, fin, desde=correccion.fecha[:10]):
                 # marca <= corte descarta los anteriores comits a la correccion porque lo devuelve git log y el rastreo va hacia atras
                 # en la historia entonces aqui lo que interesa es lo que vino despues.
                 if marca <= corte or marca > limite:

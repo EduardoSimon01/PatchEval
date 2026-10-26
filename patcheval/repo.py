@@ -222,32 +222,34 @@ class Repositorio:
 
         return rangos
 
-    def commits_sobre_rango(self, ruta, inicio, fin):
+    def commits_sobre_rango(self, ruta, inicio, fin, desde=None):
         """
         Commits que a lo largo de la historia tocaron ese rango de lineas.
 
         Se apoya en el rastreo de rangos de git (log -L), que sigue las lineas aunque se desplacen dentro del archivo o se muevan a otro. Es la pieza
-        que hace que la metrica de fiabilidad mire ubicaciones y no archivos completos, que fue el error que tenia la primera version.
+        que hace que la metrica de fiabilidad mire ubicaciones y no archivos completos.
 
-        Devuelve tuplas de (sha, marca de tiempo, asunto), de la mas reciente a la mas antigua. El filtrado por ventana y por intencion lo hace el
-        modulo de fiabilidad, no este.
+        El parametro desde acota la busqueda a partir de una fecha sin el, git recorre la historia completa del rango hacia atras, que puede ser de muchisimo tiempo
+        cuando lo unico que interesa es lo que vino DESPUES de la correccion.
+
+        Devuelve tuplas de (sha, marca de tiempo, asunto) de la mas reciente a la mas antigua.
         """
         try:
             # -s suprime el parche. Sin eso, log -L imprime el diff completo de cada commit y la salida se vuelve gradisima.
-            
-            # El separador \x1f es el de unidad de ASCII: no aparece en mensajes de commit, a diferencia de | o que si aparecen.
-            
+            # El separador \x1f es el de unidad de ASCII no aparece en mensajes de commit.
             # %H = sha completo, %ct = fecha como marca de tiempo, %s = asunto.
-            salida = self.repo.git.log(
-                f"-L{inicio},{fin}:{ruta}", "--format=%H%x1f%ct%x1f%s", "-s")
+            args = [f"-L{inicio},{fin}:{ruta}", "--format=%H%x1f%ct%x1f%s", "-s"]
+            if desde:
+                args.insert(0, f"--since={desde}")
+            salida = self.repo.git.log(*args)
         except git.GitCommandError:
-            # Falla cuando el archivo no existe en HEAD, por ejemplo si se renombro despues de la correccion. Se pierde ese rastreo y se declara como limitacion.
+            # Falla cuando el archivo no existe en la HEAD por ejemplo si se renombro despues de la correccion. 
             return []
 
         encontrados = []
         for linea in salida.splitlines():
             partes = linea.split("\x1f")
-            # log -L intercala lineas propias del formato de rangos, asi que se filtra por forma: tres campos y un sha de 40 caracteres.
+            # log -L intercala lineas propias del formato de rangos, asi que se filtra por forma tres campos y un sha de 40 caracteres.
             if len(partes) == 3 and len(partes[0]) == 40:
                 encontrados.append((partes[0], int(partes[1]), partes[2]))
 
