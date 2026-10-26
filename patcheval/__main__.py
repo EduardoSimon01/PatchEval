@@ -10,7 +10,7 @@ import argparse
 import sys
 
 from . import Repositorio, __version__
-from .metrics import complexity, dispersion, deployment
+from .metrics import complexity, deployment, dispersion, reliability
 
 
 def main(argv=None):
@@ -88,7 +88,22 @@ def main(argv=None):
     for k, v in g["resueltas"].items():
         print(f"      - {deployment.CATEGORIAS[k]['etiqueta']}: {v}")
 
-    print("  La metrica de eficacia entra en el hito H4.")
+        # Se mide la fiabilidad
+    e = reliability.medir(repo, c)
+    print()
+    print("  EFICACIA")
+    estado = "sin indicios de parche complementario" if e["es_fiable"] else "requiere revision manual"
+    print(f"    estado ............ {estado}")
+    print(f"    candidatos ........ {e['parches_complementarios']}")
+    print(f"    sobre las lineas .. {e['cambios_sobre_las_mismas_lineas']} (ventana de {e['ventana_dias']} dias)")
+    if e["dias_hasta_el_primero"] is not None:
+        print(f"    primero a los ..... {e['dias_hasta_el_primero']} dias")
+    for cand in e["candidatos"][:3]:
+        print(f"      ? [{cand['senal']}] {cand['mensaje'][:58]}")
+
+    print()
+    print("  El perfil y la clasificacion del conjunto entran en el hito H5.")
+    
     return 0
 
 

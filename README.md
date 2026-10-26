@@ -25,7 +25,7 @@ En construcción. El plan avanza por hitos y cada uno deja algo que se puede eje
 | H1 | Acceso al repositorio y al par de versiones | listo |
 | H2 | Impacto estructural y dispersión del cambio | listo |
 | H3 | Impacto de despliegue sobre manifiestos | listo |
-| H4 | Fiabilidad de la corrección | pendiente |
+| H4 | Fiabilidad de la corrección | listo |
 | H5 | Construcción del perfil y clasificación | pendiente |
 | H6 | Aplicación al corpus completo | pendiente |
 
