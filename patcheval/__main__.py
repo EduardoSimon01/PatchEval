@@ -2,15 +2,17 @@
 Punto de entrada del paquete.
 
 Permite correr el prototipo desde la terminal con `python -m patcheval`.
-Hoy solo muestra lo que la capa de acceso logra resolver de una correccion.
-Las metricas se agregan en los hitos siguientes.
+Desde el H5 el reporte no llama a los modulos de medicion: le pide el perfil de una vez a profile.construir y se limita a imprimirlo. Asi el calculo queda en un solo
+lugar y lo podremos ver en la terminal.
 """
 
 import argparse
 import sys
 
 from . import Repositorio, __version__
-from .metrics import complexity, deployment, dispersion, reliability
+from . import corpus
+from . import profile
+from .metrics import deployment
 
 
 def main(argv=None):
@@ -22,15 +24,27 @@ def main(argv=None):
         description="Evalua la eficacia y el costo arquitectonico de correcciones de seguridad en proyectos cloud-native")
 
     # --repo acepta las dos cosas: una carpeta ya clonada o una URL. En el modulo se ve que se mando
-    ap.add_argument("--repo", required=True,
-                    help="ruta local o URL del repositorio")
+    # Ya no es obligatorio porque con --corpus las rutas salen del archivo.
+    ap.add_argument("--repo", help="ruta local o URL del repositorio")
 
     # El identificador puede ser el sha completo, uno abreviado o cualquier referencia que git sepa resolver (una etiqueta una etiqueta por ejemplo como HEAD~3).
-    ap.add_argument("--commit", required=True, help="identificador de la correccion a inspeccionar")
+    ap.add_argument("--commit", help="identificador de la correccion a inspeccionar")
+
+    # Con --corpus se evaluan de corrido todas las correcciones declaradas en un archivo que ess lo que necesita la clasificacion para calcular.
+    ap.add_argument("--corpus", help="archivo con la lista de correcciones a evaluar")
+    ap.add_argument("--salida", default="resultados/perfiles.json", help="donde guardar los perfiles del corpus")
 
     ap.add_argument("--version", action="version", version=f"patcheval {__version__}")
 
     args = ap.parse_args(argv)
+
+    # Tenemos los dos modos: una correccion suelta o el corpus completo. El corpus se atiende aqui y se sale, porque de ahi en adelante todo el reporte esta
+    # escrito para una sola correccion.
+    if args.corpus:
+        return corpus.evaluar_archivo(args.corpus, args.salida)
+
+    if not (args.repo and args.commit):
+        ap.error("hacen falta --repo y --commit, o bien --corpus")
 
     # Los dos pasos que pueden fallar van dentro del mismo try: abrir el repositorio y resolver la correccion. Se atrapa Exception a secas
     # porque las causas son muy variadas (ruta inexistente, carpeta que no es un repo, sha que no resuelve, repo sin permisos, etc).
@@ -44,66 +58,60 @@ def main(argv=None):
         # Codigo distinto de cero si salio mal.
         return 1
 
-    # Reporte que se ve en pantalla
-    print(f"CORRECCION {c.sha[:12]}")
-    print(f"  {c.mensaje[:70]}")
-    print(f"  fecha ............. {c.fecha[:10]}")
+    p = profile.construir(repo, c)
+
+    # Reporte que se ve en la termi 
+    print(f"CORRECCION {p.sha[:12]}")
+    print(f"  {p.mensaje[:70]}")
+    print(f"  fecha ............. {p.fecha[:10]}")
     print(f"  padre ............. {c.sha_padre[:12]}")
-    print(f"  archivos .......... {len(c.archivos)}")
-    print(f"  lineas ............ +{c.total_agregadas} / -{c.total_eliminadas}")
+    print(f"  archivos .......... {p.archivos}")
+    print(f"  lineas ............ +{p.lineas_agregadas} / -{p.lineas_eliminadas}")
+    print(f"  servicios del repo  {p.servicios_totales}")
 
-    # Se pide el conteo de servicios en el punto de la correccion a evaluar y no en el HEAD porque un repositorio puede haber ganado o perdido servicios 
-    # desde entonces, y la dispersion se mide contra el sistema tal como estaba.
-    print(f"  servicios del repo  {len(repo.servicios(c.sha))}")
-
-        # Medimos la complejidad
-    s = complexity.medir(repo, c)
     print()
     print("  COSTO ESTRUCTURAL")
-    print(f"    archivos de codigo  {s['archivos_codigo']}")
-    print(f"    complejidad antes   {s['ccn_antes']}")
-    print(f"    complejidad despues {s['ccn_despues']}")
+    print(f"    archivos de codigo  {p.archivos_codigo}")
+    print(f"    complejidad antes   {p.ccn_antes}")
+    print(f"    complejidad despues {p.ccn_despues}")
     # El :+d fuerza el signo para saber si es + o - pq sino si es positivo sale sin signo
-    print(f"    variacion .........  {s['delta_ccn']:+d}")
+    print(f"    variacion .........  {p.delta_ccn:+d}")
+    # La densidad se imprime solo si hay con que calcularla.
+    if p.densidad_decision is not None:
+        print(f"    densidad ..........  {p.densidad_decision} por cada 100 lineas")
 
-        # Se mide la dispersion
-    disp = dispersion.medir(repo, c)
     print()
     print("  DISPERSION DEL CAMBIO")
-    print(f"    servicios afectados {disp['servicios_afectados']} de {disp['servicios_totales']}")
-    print(f"    proporcion ........ {disp['proporcion']}")
-    print(f"    manifiestos ....... {disp['manifiestos_modificados']}")
+    print(f"    servicios afectados {p.servicios_afectados} de {p.servicios_totales}")
+    print(f"    proporcion ........ {p.proporcion_servicios}")
+    print(f"    manifiestos ....... {p.manifiestos_modificados}")
     print()
 
-        # Se mide el impacto sobre la configuracion de despliegue
-    g = deployment.medir(repo, c)
     print()
     print("  COSTO DE DESPLIEGUE")
-    print(f"    manifiestos ....... {g['manifiestos_analizados']}")
-    print(f"    introducidas ...... {g['total_introducidas']} (ponderado {g['ponderado_introducidas']})")
-    print(f"    resueltas ......... {g['total_resueltas']} (ponderado {g['ponderado_resueltas']})")
+    print(f"    manifiestos ....... {p.manifiestos_analizados}")
+    print(f"    introducidas ...... {p.introducidas} (ponderado {p.ponderado_introducidas})")
+    print(f"    resueltas ......... {p.resueltas} (ponderado {p.ponderado_resueltas})")
     # Las categorias se listan solo si hay algo que listar .
-    for k, v in g["introducidas"].items():
+    for k, v in p.detalle_introducidas.items():
         print(f"      + {deployment.CATEGORIAS[k]['etiqueta']}: {v}")
-    for k, v in g["resueltas"].items():
+    for k, v in p.detalle_resueltas.items():
         print(f"      - {deployment.CATEGORIAS[k]['etiqueta']}: {v}")
 
-        # Se mide la fiabilidad
-    e = reliability.medir(repo, c)
     print()
     print("  EFICACIA")
-    estado = "sin indicios de parche complementario" if e["es_fiable"] else "requiere revision manual"
+    estado = "sin indicios de parche complementario" if p.es_fiable else "requiere revision manual"
     print(f"    estado ............ {estado}")
-    print(f"    candidatos ........ {e['parches_complementarios']}")
-    print(f"    sobre las lineas .. {e['cambios_sobre_las_mismas_lineas']} (ventana de {e['ventana_dias']} dias)")
-    if e["dias_hasta_el_primero"] is not None:
-        print(f"    primero a los ..... {e['dias_hasta_el_primero']} dias")
-    for cand in e["candidatos"][:3]:
+    print(f"    candidatos ........ {p.parches_complementarios}")
+    print(f"    sobre las lineas .. {p.cambios_sobre_las_mismas_lineas} (ventana de {p.ventana_dias} dias)")
+    if p.dias_hasta_el_primero is not None:
+        print(f"    primero a los ..... {p.dias_hasta_el_primero} dias")
+    for cand in p.candidatos[:3]:
         print(f"      ? [{cand['senal']}] {cand['mensaje'][:58]}")
 
     print()
-    print("  El perfil y la clasificacion del conjunto entran en el hito H5.")
-    
+    print("  La clasificacion del conjunto entra en el hito H5.")
+
     return 0
 
 

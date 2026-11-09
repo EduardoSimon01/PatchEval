@@ -271,3 +271,13 @@ class Repositorio:
 
         # .trees son los subdirectorios y .blobs serian los archivos sueltos de la raiz que no nos interesan.
         return [t.name for t in arbol.trees if t.name not in _NO_SON_SERVICIOS]
+
+    def sha_actual(self):
+        """
+        Identificador del estado del repositorio en este momento.
+
+        Hace falta porque la fiabilidad mira hacia adelante entonces cuenta lo que vino despues de la correccion, y eso sigue creciendo mientras el proyecto
+        viva por eso las tres metricas de costo comparan dos versiones fijas y van a dar lo mismo siempre pero la de fiabilidad medida hoy puede no coincidir
+        con la medida el año entrante poe ejemplo entonces huardar contra que estado se midio es lo unico que vuelve reproducible ese numero.
+        """
+        return self.repo.head.commit.hexsha
