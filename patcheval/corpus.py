@@ -19,6 +19,7 @@ from pathlib import Path
 import yaml
 
 from .repo import Repositorio
+from . import classify
 from . import profile
 
 
@@ -107,6 +108,14 @@ def evaluar_archivo(ruta_corpus, ruta_salida):
         return 1
 
     tabla(perfiles)
+
+    # La clasificacion solo entra si el conjunto da para calcularla y cuando no da, se dice cuantas faltan y que no aparezca que algo se rompio.
+    if len(perfiles) >= classify.MINIMO:
+        classify.informe(classify.clasificar(perfiles))
+    else:
+        print()
+        print(f"  la clasificacion por cuartiles necesita {classify.MINIMO} correcciones, "
+              f"hay {len(perfiles)}")
 
     destino = guardar(perfiles, ruta_salida)
     print()
