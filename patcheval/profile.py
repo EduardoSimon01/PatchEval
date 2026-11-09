@@ -66,6 +66,11 @@ class Perfil:
     head: str = ""
     evaluado_en: str = ""
 
+    # la linea base son cambios ordinarios del mismo proyecto y sin esta marca no habria como separarlos al analizar.
+    tipo: str = "seguridad"
+    # El aviso publicado que respalda a la correccion porque una correccion sin fuente no es verificable por nadie mas y queda como afirmacion mia.
+    fuente: str = ""
+
     def como_diccionario(self):
         """Para escribirlo a disco y no tener que volver a medir."""
         return asdict(self)
@@ -82,7 +87,7 @@ def densidad_decision(delta_ccn, lineas_agregadas):
     return round(100 * delta_ccn / lineas_agregadas, 2)
 
 
-def construir(repo, correccion, proyecto=""):
+def construir(repo, correccion, proyecto="", tipo="seguridad", fuente=""):
     """
     Corre las cuatro mediciones sobre una misma correccion y arma su perfil.
 
@@ -134,4 +139,7 @@ def construir(repo, correccion, proyecto=""):
 
         head=repo.sha_actual(),
         evaluado_en=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        
+        tipo=tipo,
+        fuente=fuente,
     )

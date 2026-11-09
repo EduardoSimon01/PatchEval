@@ -1,11 +1,20 @@
 # Correcciones sobre las que se aplica el marco.
 #
-# Cada entrada es un proyecto, la ruta de su clon y la lista de identificadores a evaluar. Las rutas son relativas a la raiz del proyecto para que el archivo
-# sirva igual en cualquier maquina y sea reproducible mas facilomente.
+# Cada entrada es un proyecto, la ruta de su clon y las correcciones a evaluar.
+# Las rutas son relativas a la raiz del proyecto para que el archivo sirva
+# igual en cualquier maquina.
 #
-# Este archivo es el corpus declarado y lo que esta aqui es con lo que se midio cualquiera que lo tenga puede repetir la evaluacion completa.
+# Cada correccion lleva la fuente que la respalda: el identificador del aviso
+# publicado. Esa es la diferencia entre un corpus declarado y una lista de
+# commits que alguien escogio.
+#
+# linea_base dice cuantos cambios ordinarios tomar por cada correccion, para
+# contrastar. La seleccion la hace el prototipo con un criterio declarado, no
+# a mano.
 
 - proyecto: argo-cd
   ruta: corpus/argo-cd
+  linea_base: 3
   correcciones:
-    - 2df5f7572
+    - sha: 2df5f7572
+      fuente: ""

@@ -34,12 +34,26 @@ def cargar(ruta):
     return datos
 
 
+def normalizar(correcciones):
+    """
+    Acepta las dos formas de declarar una correccion en el archivo del corpus.
+
+    La corta es solo el identificador y la larga agrega de donde salio osea el aviso publicado que la respalda. La larga es la que realmente conviene sin el
+    aviso nadie puede comprobar que ese commit corrige de verdad una vulnerabilidad y no es un cambio cualquiera que alguien metio.
+    """
+    salida = []
+    for c in correcciones or []:
+        if isinstance(c, dict):
+            salida.append((str(c.get("sha", "")), str(c.get("fuente", ""))))
+        else:
+            salida.append((str(c), ""))
+    return salida
+
 def evaluar(entradas):
     """
     Construye el perfil de cada correccion declarada.
 
-    Devuelve los perfiles que salieron bien y la lista de los que no, con el
-    motivo. El repositorio se abre una sola vez por proyecto: abrirlo por cada
+    Devuelve los perfiles que salieron bien y la lista de los que no, con el motivo. El repositorio se abre una sola vez por proyecto porque abrirlo por cada
     correccion seria pagar el mismo costo varias veces sin razon.
     """
     perfiles = []
@@ -55,10 +69,10 @@ def evaluar(entradas):
             fallas.append((nombre, ruta, f"no se pudo abrir el repositorio: {exc}"))
             continue
 
-        for sha in entrada.get("correcciones", []):
+        for sha, fuente in normalizar(entrada.get("correcciones")):
             try:
                 c = repo.cargar_correccion(sha)
-                perfiles.append(profile.construir(repo, c, proyecto=nombre))
+                perfiles.append(profile.construir(repo, c, proyecto=nombre, fuente=fuente))
                 print(f"  medido  {nombre} {sha}")
             except Exception as exc:
                 fallas.append((nombre, sha, str(exc)))
