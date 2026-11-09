@@ -1,0 +1,46 @@
+[
+  {
+    "proyecto": "argo-cd",
+    "sha": "2df5f75727d5365ac5018d40b8d3eadc1d51decf",
+    "mensaje": "feat: adds mTLS support in repo-server (#26715)",
+    "fecha": "2026-06-14T12:47:54+03:00",
+    "archivos": 50,
+    "lineas_agregadas": 3759,
+    "lineas_eliminadas": 287,
+    "servicios_totales": 20,
+    "archivos_codigo": 17,
+    "ccn_antes": 343,
+    "ccn_despues": 509,
+    "delta_ccn": 166,
+    "densidad_decision": 4.42,
+    "servicios_afectados": 4,
+    "proporcion_servicios": 0.2,
+    "manifiestos_modificados": 17,
+    "manifiestos_analizados": 17,
+    "introducidas": 0,
+    "ponderado_introducidas": 0,
+    "resueltas": 0,
+    "ponderado_resueltas": 0,
+    "detalle_introducidas": {},
+    "detalle_resueltas": {},
+    "es_fiable": false,
+    "cambios_sobre_las_mismas_lineas": 7,
+    "parches_complementarios": 1,
+    "dias_hasta_el_primero": 81,
+    "ventana_dias": 90,
+    "candidatos": [
+      {
+        "sha": "9cee19db23",
+        "mensaje": "chore: signal handling followups (#29226)",
+        "fecha": "2026-09-03T15:04:34+00:00",
+        "dias_despues": 81,
+        "archivos_compartidos": [
+          "cmd/argocd-repo-server/commands/argocd_repo_server.go"
+        ],
+        "senal": "incompletitud"
+      }
+    ],
+    "head": "d9ccb538ab9f46906f7e2ace240c88e772900f11",
+    "evaluado_en": "2026-11-09T06:19:16+00:00"
+  }
+]

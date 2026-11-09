@@ -1,0 +1,11 @@
+# Correcciones sobre las que se aplica el marco.
+#
+# Cada entrada es un proyecto, la ruta de su clon y la lista de identificadores a evaluar. Las rutas son relativas a la raiz del proyecto para que el archivo
+# sirva igual en cualquier maquina y sea reproducible mas facilomente.
+#
+# Este archivo es el corpus declarado y lo que esta aqui es con lo que se midio cualquiera que lo tenga puede repetir la evaluacion completa.
+
+- proyecto: argo-cd
+  ruta: corpus/argo-cd
+  correcciones:
+    - 2df5f7572
