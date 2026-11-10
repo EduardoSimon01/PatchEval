@@ -71,6 +71,10 @@ class Perfil:
     # El aviso publicado que respalda a la correccion porque una correccion sin fuente no es verificable por nadie mas y queda como afirmacion mia.
     fuente: str = ""
 
+    # Vamos a sacar de cual correccion salio este cambio ordinario si queda vacio en las correcciones de seguridad es porque ellas no salieron de ninguna sin esto 
+    # las filas ordinarias quedan sueltas en el csv y la prueba de rangos con signo, que compara pares, no se puede armar.
+    pareja: str = ""
+
     def como_diccionario(self):
         """Para escribirlo a disco y no tener que volver a medir."""
         return asdict(self)
@@ -87,7 +91,7 @@ def densidad_decision(delta_ccn, lineas_agregadas):
     return round(100 * delta_ccn / lineas_agregadas, 2)
 
 
-def construir(repo, correccion, proyecto="", tipo="seguridad", fuente=""):
+def construir(repo, correccion, proyecto="", tipo="seguridad", fuente="", pareja=""):
     """
     Corre las cuatro mediciones sobre una misma correccion y arma su perfil.
 
@@ -142,4 +146,5 @@ def construir(repo, correccion, proyecto="", tipo="seguridad", fuente=""):
         
         tipo=tipo,
         fuente=fuente,
+        pareja=pareja,
     )

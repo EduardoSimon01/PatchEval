@@ -114,6 +114,8 @@ def seleccionar(repo, perfiles, cantidad):
 
     Un mismo commit no se toma dos veces aunque caiga en la ventana de dos correcciones distintas sino contaria doble en el analisis y el contraste
     quedaria pesado hacia esa epoca del proyecto.
+
+    Devuelve tuplas de (sha, asunto, sha de la correccion que lo trajo).
     """
     excluidos = {p.sha for p in perfiles}
     elegidos = {}
@@ -139,8 +141,8 @@ def seleccionar(repo, perfiles, cantidad):
             if sha in elegidos or not toca_codigo(repo, sha):
                 continue
 
-            elegidos[sha] = asunto
+            elegidos[sha] = (asunto, p.sha)
             excluidos.add(sha)
             faltan -= 1
 
-    return list(elegidos.items())
+    return [(sha, asunto, pareja) for sha, (asunto, pareja) in elegidos.items()]

@@ -85,11 +85,11 @@ def evaluar(entradas):
         if cantidad:
             de_seguridad = [p for p in perfiles
                             if p.proyecto == nombre and p.tipo == "seguridad"]
-            for sha, asunto in baseline.seleccionar(repo, de_seguridad, cantidad):
+            for sha, asunto, pareja in baseline.seleccionar(repo, de_seguridad, cantidad):
                 try:
                     c = repo.cargar_correccion(sha)
                     perfiles.append(profile.construir(
-                        repo, c, proyecto=nombre, tipo="ordinaria"))
+                        repo, c, proyecto=nombre, tipo="ordinaria", pareja=pareja))
                     print(f"  base    {nombre} {sha[:10]} {asunto[:45]}")
                 except Exception as exc:
                     fallas.append((nombre, sha, str(exc)))
@@ -124,7 +124,7 @@ def tabla(perfiles):
 # Las columnas de la exportacion. Se declaran en orden fijo para que dos corridas produzcan archivos comparables y para que agregar un campo al perfil
 # no cambie en silencio la forma de la tabla.
 CAMPOS_CSV = (
-    "proyecto", "tipo", "sha", "fecha", "fuente",
+    "proyecto", "tipo", "sha", "fecha", "fuente", "pareja",
     "archivos", "lineas_agregadas", "lineas_eliminadas",
     "archivos_codigo", "ccn_antes", "ccn_despues", "delta_ccn", "densidad_decision",
     "servicios_afectados", "servicios_totales", "proporcion_servicios",

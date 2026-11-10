@@ -16,5 +16,77 @@
   ruta: corpus/argo-cd
   linea_base: 3
   correcciones:
-    - sha: 2df5f7572
-      fuente: ""
+    - sha: 78c2084f0febd159039ff785ddc2bd4ba1cecf88
+      fuente: GHSA-63QX-X74G-JCR7
+    - sha: af03b291d4b7e9d3ce9a6580ae9c8141af0e05cf
+      fuente: GHSA-2F5V-8R3F-8PWW
+    - sha: 8558bea5d00f22462cf4849593dfb133e3c4fe25
+      fuente: GHSA-XMG8-99R8-JC2J
+    - sha: aa8a84ce3cf5814d2a7776519cbf823a465eec31
+      fuente: GHSA-6GCG-HP2X-Q54H
+    - sha: a809469d9af10c626449bfcb8b9a09a9d2dc9065
+      fuente: GHSA-R642-GV9P-2WJJ
+    - sha: 937f42ffa453a06b897f6cb6aa94c15c12c6470b
+      fuente: GHSA-H4W9-6X78-8VRJ
+    - sha: 47e4133cc05a7b872dfe22469ca210bdf22e92d3
+      fuente: GHSA-2M7H-86QQ-FP4V
+    - sha: 7987a4e1e7701fb4d7409f3455722458984f23f1
+      fuente: GHSA-Q4W5-4GQ2-98VM
+    - sha: f9c3319749efbc09f7000650bf440547508b1c04
+      fuente: GHSA-JHQP-VF4W-RPWQ
+    - sha: 8b2f081dedde154cc3814197e7e3510f53b1313a
+      fuente: GHSA-PMJG-52H9-72QV
+    - sha: f223182ddc83d6385abb897577067f99953c4d74
+      fuente: GHSA-7943-82JG-WMW5
+    - sha: 95da518e7dbe5f51361f82ee5e87a4f272ccc45c
+      fuente: GHSA-6P4M-HW2H-6GMW
+    - sha: b38bc0040b0e0421e4df4fdec4f88aa246c39721
+      fuente: GHSA-Q9HR-J4RF-8FJC
+    - sha: fbb0b99b1ac3361b253052bd30259fa43a520945
+      fuente: GHSA-3JFQ-742W-XG8J
+    - sha: 3a28c8a18cc2aa84fe81492625545d25c7a90bc3
+      fuente: GHSA-2Q5C-QW9C-FMVQ
+    - sha: ea3a67a9f36ecfdd76e45174c8ca5743a2069753
+      fuente: GHSA-94MC-2CH7-R5R5
+    - sha: e047efa8f9518c54d00d2e4493b64bc4dba98478
+      fuente: GHSA-C8XW-VJGF-94HR
+    - sha: b8f92c4ff226346624f43de3f25d81dac6386674
+      fuente: GHSA-G687-F2GX-6WM8
+    - sha: 4b2e5b06bff2ffd8ed1970654ddd8e55fc4a41c4
+      fuente: GHSA-FWR2-64VR-XV9M
+    - sha: 479b5544b57dc9ef767d49f7003f39602c480b71
+      fuente: GHSA-JWV5-8MQV-G387
+    - sha: 3b8f673f06c2d228e01cbc830e5cb57cef008978
+      fuente: GHSA-G623-JCGG-MHMM
+    - sha: 6596e088ac1727491d99134afe5a1df9fd5267a8
+      fuente: GHSA-2VGG-9H6W-M454
+    - sha: d69c61ae1a0f8fd41f00fa503ce4a171f55184a9
+      fuente: GHSA-6V85-WR92-Q4P7
+    - sha: ae29279cbe7d9df3b2162f39461a61f72aac0589
+      fuente: GHSA-JHWX-MHWW-RGC3
+    - sha: 6646c6b10256bf7f9222048770840adc27ec9eba
+      fuente: GHSA-2GVW-W6FJ-7M3C
+    - sha: e23060540f673ae346b32ad363a0b7627a6b6946
+      fuente: GHSA-9M6P-X4H2-6FRQ
+    - sha: 13d5803e7587f59db85862a368f03383447a1953
+      fuente: GHSA-9766-5277-J5HR
+    - sha: 256d90178b11b04bc8174d08d7b663a2a7b1771b
+      fuente: GHSA-87P9-X75H-P4J2
+    - sha: c2647055c261a550e5da075793260f6524e65ad9
+      fuente: GHSA-3CQF-953P-H5CP
+    - sha: bac18ccdeb19b3bbd09dc9227e0056f54e67c250
+      fuente: GHSA-9V9P-X54C-58GC
+    - sha: c49520b64c6335b26986c176f34868af837d22bd
+      fuente: GHSA-M3VR-7329-44WW
+    - sha: da7dd80995a3782e49bddd7573c3b58c158f50cf
+      fuente: GHSA-FW5C-W8RC-J7FX
+    - sha: 7c585b8a50b5161fdf657b87c547147a7d659914
+      fuente: GHSA-FMXQ-CGP8-87WP
+    - sha: ba80c9664880306b5c17404ea71af877e9190f94
+      fuente: GHSA-G3FF-Q88G-CHRJ
+    - sha: 6787a883fcd48291968097b70118bb6a67771bce
+      fuente: GHSA-4439-H7JW-5CJJ
+    - sha: c88160277bd3567fa7c51dc81c555ca7ff116d80
+      fuente: GHSA-W996-F2WQ-X9C6
+    - sha: 1e3ddd0b7250aa23f489956b5fab8c13d0493a9f
+      fuente: GHSA-J6CW-G6P4-7HCH

@@ -87,8 +87,9 @@ def clasificar(perfiles):
         p25, p75 = cuartiles(valores)
 
         if p25 == p75:
-            # Sin dispersion no hay nada que repartir.
-            cortes[metrica] = {"p25": p25, "p75": p75, "discrimina": False}
+            # Los dos cortes caen en el mismo valor pero no quiere decir que todos los datos sean iguales sino que al menos tres cuartas partes lo son
+            # y con eso repartir en niveles no significaria nada.
+            cortes[metrica] = {"p25": p25, "p75": p75, "discrimina": False, "distintos": len(set(valores))}
             for sha, _ in medidos:
                 niveles[sha][metrica] = None
             continue
@@ -109,7 +110,7 @@ def informe(resultado):
         if corte is None:
             print(f"    {metrica:<12} sin datos suficientes")
         elif not corte["discrimina"]:
-            print(f"    {metrica:<12} todos los valores coinciden, no separa")
+            print(f"    {metrica:<12} los cuartiles coinciden en {corte['p25']:.2f}, "f"no separa ({corte['distintos']} valores distintos)")
         else:
             print(f"    {metrica:<12} bajo <= {corte['p25']:.2f}   alto >= {corte['p75']:.2f}")
 
