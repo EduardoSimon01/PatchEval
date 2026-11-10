@@ -14,6 +14,7 @@ from . import corpus
 from . import profile
 from .metrics import deployment
 from . import discover
+from . import analyze
 
 
 def main(argv=None):
@@ -42,7 +43,14 @@ def main(argv=None):
     ap.add_argument("--descubrir", help="ruta del repositorio donde buscar correcciones de seguridad")
     ap.add_argument("--proyecto", default="", help="nombre del proyecto para la entrada del corpus")
 
+
+    # Con --analizar se contrastan las correcciones contra su linea base sobre los perfiles que ya quedaron guardados sin volver a medir nada.
+    ap.add_argument("--analizar", nargs="?", const="resultados/perfiles.json", help="contrasta los perfiles guardados contra la linea base")
+
     args = ap.parse_args(argv)
+
+    if args.analizar:
+        return analyze.analizar_archivo(args.analizar)
 
     # Tenemos los dos modos: una correccion suelta o el corpus completo. El corpus se atiende aqui y se sale, porque de ahi en adelante todo el reporte esta
     # escrito para una sola correccion.
