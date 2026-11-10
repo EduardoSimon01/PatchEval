@@ -21,6 +21,7 @@ import yaml
 from .repo import Repositorio
 from . import classify
 from . import profile
+from . import baseline
 
 
 def cargar(ruta):
@@ -78,6 +79,21 @@ def evaluar(entradas):
                 fallas.append((nombre, sha, str(exc)))
                 print(f"  FALLO   {nombre} {sha}: {exc}")
 
+        # La linea base se arma despues de medir las correcciones del proyecto porque la ventana de busqueda se define alrededor de sus fechas.
+        cantidad = int(entrada.get("linea_base", 0) or 0)
+        if cantidad:
+            de_seguridad = [p for p in perfiles
+                            if p.proyecto == nombre and p.tipo == "seguridad"]
+            for sha, asunto in baseline.seleccionar(repo, de_seguridad, cantidad):
+                try:
+                    c = repo.cargar_correccion(sha)
+                    perfiles.append(profile.construir(
+                        repo, c, proyecto=nombre, tipo="ordinaria"))
+                    print(f"  base    {nombre} {sha[:10]} {asunto[:45]}")
+                except Exception as exc:
+                    fallas.append((nombre, sha, str(exc)))
+                    print(f"  FALLO   {nombre} {sha[:10]}: {exc}")
+
     return perfiles, fallas
 
 
@@ -123,13 +139,14 @@ def evaluar_archivo(ruta_corpus, ruta_salida):
 
     tabla(perfiles)
 
-    # La clasificacion solo entra si el conjunto da para calcularla y cuando no da, se dice cuantas faltan y que no aparezca que algo se rompio.
-    if len(perfiles) >= classify.MINIMO:
-        classify.informe(classify.clasificar(perfiles))
+    # Los niveles salen del conjunto de correcciones de seguridad y la linea base no entra porque esta para contrastar, no para definir los cortes.
+    de_seguridad = [p for p in perfiles if p.tipo == "seguridad"]
+    if len(de_seguridad) >= classify.MINIMO:
+        classify.informe(classify.clasificar(de_seguridad))
     else:
         print()
-        print(f"  la clasificacion por cuartiles necesita {classify.MINIMO} correcciones, "
-              f"hay {len(perfiles)}")
+        print(f"  la clasificacion por cuartiles necesita {classify.MINIMO} correcciones "
+              f"de seguridad, hay {len(de_seguridad)}")
 
     destino = guardar(perfiles, ruta_salida)
     print()

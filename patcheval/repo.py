@@ -281,3 +281,30 @@ class Repositorio:
         con la medida el año entrante poe ejemplo entonces huardar contra que estado se midio es lo unico que vuelve reproducible ese numero.
         """
         return self.repo.head.commit.hexsha
+
+    def commits_ordinarios(self, desde, hasta, maximo=800):
+        """
+        Commits de la rama actual entre dos fechas, sin fusiones.
+
+        Es la materia prima de la linea base ya que son los cambios ordinarios contra los que se contrastan las correcciones de seguridad las fusiones se
+        excluyen porque su diferencia abarca todo lo que la rama incorporo asi que no son un cambio sino un paquete de cambios, y medirlas como
+        si fueran uno solo inflaria la linea base.
+
+        Devuelve tuplas de (sha, marca de tiempo, asunto), de la mas reciente a la mas antigua.
+        """
+        try:
+            salida = self.repo.git.log(
+                "--no-merges",
+                f"--since={desde}", f"--until={hasta}",
+                f"--max-count={maximo}",
+                "--format=%H%x1f%ct%x1f%s")
+        except git.GitCommandError:
+            return []
+
+        encontrados = []
+        for linea in salida.splitlines():
+            partes = linea.split("\x1f")
+            if len(partes) == 3 and len(partes[0]) == 40:
+                encontrados.append((partes[0], int(partes[1]), partes[2]))
+
+        return encontrados
