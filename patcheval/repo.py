@@ -321,3 +321,33 @@ class Repositorio:
             return []
 
         return [l.strip() for l in salida.splitlines() if l.strip()]
+
+    def commits_que_mencionan(self, patrones, maximo=500):
+        """
+        Commits de la rama actual cuyo mensaje coincide con alguno de los patrones.
+
+        A diferencia de commits_ordinarios aqui se devuelve tambien el cuerpo del mensaje y no solo el asunto porque los proyectos muchas veces ponen el
+        identificador del aviso en el cuerpo y no en la primera linea.
+
+        El cuerpo trae saltos de linea asi que los registros se separan con el caracter de separacion de registro de ASCII en lugar de confiar en
+        las lineas que es lo que hice en el resto de los metodos.
+
+        Devuelve tuplas de (sha, marca de tiempo, autor, asunto, cuerpo).
+        """
+        args = ["--no-merges", "-i", f"--max-count={maximo}",
+                "--format=%H%x1f%ct%x1f%an%x1f%s%x1f%b%x1e"]
+        for p in patrones:
+            args.append(f"--grep={p}")
+
+        try:
+            salida = self.repo.git.log(*args)
+        except git.GitCommandError:
+            return []
+
+        encontrados = []
+        for registro in salida.split("\x1e"):
+            partes = registro.strip("\n").split("\x1f")
+            if len(partes) == 5 and len(partes[0]) == 40:
+                encontrados.append((partes[0], int(partes[1]), partes[2], partes[3], partes[4]))
+
+        return encontrados

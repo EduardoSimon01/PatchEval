@@ -13,6 +13,7 @@ from . import Repositorio, __version__
 from . import corpus
 from . import profile
 from .metrics import deployment
+from . import discover
 
 
 def main(argv=None):
@@ -36,12 +37,20 @@ def main(argv=None):
 
     ap.add_argument("--version", action="version", version=f"patcheval {__version__}")
 
+    # Con --descubrir se aplica el criterio de seleccion del corpus sobre un repositorio y se imprimen las entradas listas para pegar. Asi la lista
+    # de correcciones no la escojo yo a mano sino que sale de la regla escrita.
+    ap.add_argument("--descubrir", help="ruta del repositorio donde buscar correcciones de seguridad")
+    ap.add_argument("--proyecto", default="", help="nombre del proyecto para la entrada del corpus")
+
     args = ap.parse_args(argv)
 
     # Tenemos los dos modos: una correccion suelta o el corpus completo. El corpus se atiende aqui y se sale, porque de ahi en adelante todo el reporte esta
     # escrito para una sola correccion.
     if args.corpus:
         return corpus.evaluar_archivo(args.corpus, args.salida)
+
+    if args.descubrir:
+        return discover.descubrir_archivo(args.descubrir, args.proyecto)
 
     if not (args.repo and args.commit):
         ap.error("hacen falta --repo y --commit, o bien --corpus")
