@@ -15,6 +15,7 @@ fallas se juntan y se reportan al final.
 import json
 import os
 from pathlib import Path
+import csv
 
 import yaml
 
@@ -120,6 +121,39 @@ def tabla(perfiles):
               f"{dens:>7} {p.proporcion_servicios:>6} "
               f"{p.ponderado_introducidas:>6} {p.parches_complementarios:>5}")
 
+# Las columnas de la exportacion. Se declaran en orden fijo para que dos corridas produzcan archivos comparables y para que agregar un campo al perfil
+# no cambie en silencio la forma de la tabla.
+CAMPOS_CSV = (
+    "proyecto", "tipo", "sha", "fecha", "fuente",
+    "archivos", "lineas_agregadas", "lineas_eliminadas",
+    "archivos_codigo", "ccn_antes", "ccn_despues", "delta_ccn", "densidad_decision",
+    "servicios_afectados", "servicios_totales", "proporcion_servicios",
+    "manifiestos_analizados", "introducidas", "ponderado_introducidas",
+    "resueltas", "ponderado_resueltas",
+    "cambios_sobre_las_mismas_lineas", "parches_complementarios",
+    "dias_hasta_el_primero", "ventana_dias",
+    "head", "evaluado_en",
+)
+
+
+def exportar_csv(perfiles, ruta):
+    """
+    Escribe los perfiles como tabla.
+
+    El contraste contra la linea base se hace sobre esto si un valor que falta, como la densidad cuando la correccion no agrega lineas, se deja vacio y no
+    en cero la herramienta de analisis tiene que poder distinguir un dato ausente de un dato que vale cero.
+    """
+    destino = Path(ruta)
+    os.makedirs(destino.parent, exist_ok=True)
+
+    with open(destino, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(CAMPOS_CSV)
+        for p in perfiles:
+            w.writerow(["" if getattr(p, campo) is None else getattr(p, campo)
+                        for campo in CAMPOS_CSV])
+
+    return destino
 
 def evaluar_archivo(ruta_corpus, ruta_salida):
     """Punto de entrada desde la linea de comandos. Devuelve el codigo de salida."""
@@ -149,8 +183,10 @@ def evaluar_archivo(ruta_corpus, ruta_salida):
               f"de seguridad, hay {len(de_seguridad)}")
 
     destino = guardar(perfiles, ruta_salida)
+    # El csv lo dejamos a la par del json con el mismo nombre asi uno conserva el detalle completo y el otro es el que entra al analisis.
+    destino_csv = exportar_csv(perfiles, Path(ruta_salida).with_suffix(".csv"))
     print()
-    print(f"  {len(perfiles)} perfiles guardados en {destino}")
+    print(f"  {len(perfiles)} perfiles guardados en {destino} y {destino_csv}")
 
     if fallas:
         print()
