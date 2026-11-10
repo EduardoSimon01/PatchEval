@@ -7,7 +7,7 @@ del commit mas antiguo que necesita historia de verdad para ejercitarse.
 
 import unittest
 
-from patcheval.discover import avisos_en
+from patcheval.discover import avisos_en, es_dependencia
 
 
 class PruebaAvisos(unittest.TestCase):
@@ -45,3 +45,18 @@ class PruebaAvisos(unittest.TestCase):
     def test_no_confunde_un_numero_cualquiera(self):
         # Sin la forma completa no es un identificador.
         self.assertEqual(avisos_en("bump to CVE-20 something"), [])
+
+class PruebaFiltroDependencia(unittest.TestCase):
+
+    def test_los_que_se_colaron(self):
+        self.assertTrue(es_dependencia(
+            "fix: CVE-2024-21538 upgrading the indirect dep cross-spawn to greater than 7.0.5"))
+        self.assertTrue(es_dependencia(
+            "chore: upgrade redis to 7.0.15"))
+        self.assertTrue(es_dependencia(
+            "chore: upgrade dex to v2.35.3 to avoid CVE-2022-27664"))
+
+    def test_no_descarta_correcciones_del_proyecto(self):
+        self.assertFalse(es_dependencia("fix: confine jsonnet importer to repository root"))
+        self.assertFalse(es_dependencia("fix: block git-ref argument injection in kustomize remote bases"))
+        self.assertFalse(es_dependencia("fix(auth): serialize login attempts per user"))
