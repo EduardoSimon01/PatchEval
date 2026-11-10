@@ -290,21 +290,34 @@ class Repositorio:
         excluyen porque su diferencia abarca todo lo que la rama incorporo asi que no son un cambio sino un paquete de cambios, y medirlas como
         si fueran uno solo inflaria la linea base.
 
-        Devuelve tuplas de (sha, marca de tiempo, asunto), de la mas reciente a la mas antigua.
+        Devuelve tuplas de (sha, marca de tiempo,autor asunto), de la mas reciente a la mas antigua.
         """
         try:
             salida = self.repo.git.log(
                 "--no-merges",
                 f"--since={desde}", f"--until={hasta}",
                 f"--max-count={maximo}",
-                "--format=%H%x1f%ct%x1f%s")
+                "--format=%H%x1f%ct%x1f%an%x1f%s")
         except git.GitCommandError:
             return []
 
         encontrados = []
         for linea in salida.splitlines():
             partes = linea.split("\x1f")
-            if len(partes) == 3 and len(partes[0]) == 40:
-                encontrados.append((partes[0], int(partes[1]), partes[2]))
+            if len(partes) == 4 and len(partes[0]) == 40:
+                encontrados.append((partes[0], int(partes[1]), partes[2], partes[3]))
 
         return encontrados
+
+    def archivos_de(self, sha):
+        """
+        Rutas que toco un commit, sin medir nada mas.
+
+        Usamos esto para descartar candidatos de la linea base antes de gastar en medirlos. Un commit que no toca codigo no sirve para contrastar y averiguarlo cargando la correccion entera seria pagar la medicion completa para despues tirarla.
+        """
+        try:
+            salida = self.repo.git.show("--name-only", "--format=", sha)
+        except git.GitCommandError:
+            return []
+
+        return [l.strip() for l in salida.splitlines() if l.strip()]
