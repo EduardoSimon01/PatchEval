@@ -29,7 +29,8 @@ _CABECERA = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 # dispersion que reporte.
 _NO_SON_SERVICIOS = {
     ".github", ".git", "docs", "doc", "hack", "vendor",
-    "third_party", "test", "tests", "examples", "site",
+    "third_party", "test", "tests", "testing", "testdata",
+    "examples", "site", "scripts", "script", "tools", "contrib",
 }
 
 
@@ -283,7 +284,9 @@ class Repositorio:
                 return []
 
         # .trees son los subdirectorios y .blobs serian los archivos sueltos de la raiz que no nos interesan.
-        return [t.name for t in arbol.trees if t.name not in _NO_SON_SERVICIOS]
+        # Los que empiezan con punto son configuracion o herramientas y nunca son servicios del sistema antes estaban uno por uno en la lista
+        # pero cada proyecto trae los suyos y nombrarlos todos seria mucho trabajo de por gusto.
+        return [t.name for t in arbol.trees if not t.name.startswith(".") and t.name not in _NO_SON_SERVICIOS]
     
     def sha_actual(self):
         """
