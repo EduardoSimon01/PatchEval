@@ -12,6 +12,10 @@
 # raiz_servicios dice bajo que carpeta agrupa sus servicios el proyecto esto se deja vacio o se omite cuando estan en la raiz del repositorio como en
 # Argo CD y se declara cuando no como en Harbor que los mete bajo src.
 
+# Se intento tambien con Traefik y quedo afuera no porque el criterio lo rechazara sino porque ese proyecto no menciona el identificador del aviso en
+# ningun mensaje de commit de toda su historia asi que no hay de donde descubrir nada esa es una limitacion del metodo y esta declarada como tal el
+# descubrimiento solo funciona sobre proyectos que citan el aviso al corregir.
+
 - proyecto: argo-cd
   ruta: corpus/argo-cd
   linea_base: 3
@@ -90,3 +94,158 @@
       fuente: GHSA-W996-F2WQ-X9C6
     - sha: 1e3ddd0b7250aa23f489956b5fab8c13d0493a9f
       fuente: GHSA-J6CW-G6P4-7HCH
+
+- proyecto: harbor
+  ruta: corpus/harbor
+  raiz_servicios: src
+  linea_base: 3
+  correcciones:
+    - sha: d57831f1df7da2c66fdb953cb5f8cfb16b4f95eb
+      fuente: GHSA-QJ39-PJF2-WMRC
+    - sha: 1ab096098a546a9d78bae6df2065cede6c86553c
+      fuente: GHSA-XQ2M-CJ8W-56V5
+    - sha: f5c89c7355435652e92c6c07a8f431c856f505c1
+      fuente: CVE-2025-30086 GHSA-VWVV-675V-P6RR
+    - sha: 7894b309c3cecb83f5d94c76b2152080acb297d8
+      fuente: GHSA-884Q-MJCG-86X4
+    - sha: d8a18f71b4e7a58a3a9f39e287d68430a71560d9
+      fuente: GHSA-27F2-QG57-2GWG
+    - sha: d80de5b30919ae5f55611a64fd3558189ed3bb8b
+      fuente: GHSA-XVH7-74G6-29XW
+    - sha: 8d59dd5bba20b4a0e72b37a3b6aefb7e23e8f64a
+      fuente: GHSA-3X7C-WF86-MJX6
+    - sha: c38a9eb5d867a32bdefd22f49c2b51f0c8db4140
+      fuente: GHSA-XGP2-5VXG-RGH2
+    - sha: 0a9e68e6d5b8c623bf53f123e2b9ed15779fefa2
+      fuente: GHSA-WJPM-HV5W-GXR6
+    - sha: f234c0cb686edea1d4a077f3a4e905b7234646cf
+      fuente: GHSA-WRW5-GMVJ-GF23
+
+- proyecto: keycloak
+  ruta: corpus/keycloak
+  linea_base: 3
+  correcciones:
+    - sha: 16ba4c0104c9a9015dec7b8e6dcca43de2711f0e
+      fuente: CVE-2020-28052
+    - sha: 84576ffc0e550ea3683098086a6bc79611741e7b
+      fuente: GHSA-W9MF-83W3-FV49
+    - sha: d9025231f9fb32dfa37858a7da9b7cd8085e5042
+      fuente: GHSA-M4FV-GM5M-4725
+    - sha: 5d6c91f3309db468b0fe4834e88c3d25649f73e4
+      fuente: CVE-2024-10270
+    - sha: 198214310eb45b86707f823ccb5a2d65c814b528
+      fuente: CVE-2024-10451
+    - sha: fd9db3a00e0d2fd9f5d37717155f817af5e04beb
+      fuente: CVE-2024-11734
+    - sha: faa1c194f3169d3b7a1f89703932db78b6a3aa73
+      fuente: CVE-2025-3501
+    - sha: 05ff44b8a0ea57ba9c68c4b416f8b90f5116bb83
+      fuente: CVE-2026-0707
+    - sha: b40a25908d937bb0563ea516487bc2c7c1d92508
+      fuente: CVE-2026-2092
+    - sha: 68f5779230d08825e6a4b4e23471fade16434178
+      fuente: CVE-2026-3429
+    - sha: 103433eab1f6cf4ee4492ee5abdc97624698122d
+      fuente: CVE-2026-3872
+    - sha: 18dbc74960db6f08db102a3c916d133dee48fa6b
+      fuente: CVE-2026-4282 CVE-2026-4325
+    - sha: f29249f3d765932af2cf85873bb94ffc63da541c
+      fuente: CVE-2026-4634
+    - sha: 8a1c921415e07a6d6f124b0f2ac2d85d839773f7
+      fuente: CVE-2026-4636
+    - sha: 8e808ca15fae0a814516a9fa39361c5f0aab6a5c
+      fuente: CVE-2026-7500
+    - sha: be84d28ce4c69c038d542f11405d5ede1d61f4a9
+      fuente: CVE-2026-7307
+    - sha: 2d1a24f501454a44c52daa62855419b31dc499c1
+      fuente: CVE-2026-37982
+    - sha: d791b270b9ea5203be40a9533c1c12c4d044fb52
+      fuente: CVE-2026-7507
+    - sha: 479620769073ac36b782dee65086ab35e8e5d14e
+      fuente: CVE-2026-7504
+    - sha: 492d1f04cdad425dadb9d5e1faa94dd17a875573
+      fuente: CVE-2026-37978
+    - sha: 47b9aef70948564151af85fd52e0d7e508c76490
+      fuente: CVE-2026-8830
+    - sha: 461ce79a6cd6bfef7ca7fa41da287a3127f47ae4
+      fuente: CVE-2026-37977
+    - sha: f19e1f2b4e998116d4e321f50ecf99c0f87b862f
+      fuente: CVE-2026-9791
+    - sha: dba79eb03fb9d634fda5e86e1613b8747f968518
+      fuente: CVE-2026-9794
+    - sha: 9697e1aa5d1ec58d759e4119fb02b876b3392845
+      fuente: CVE-2026-9083
+    - sha: fae0aef64a28e2d2ea6ede870aa6762a0bdcb384
+      fuente: CVE-2026-9086
+    - sha: 8894c027e788904c740ff9a1a60fcfaa34a10d13
+      fuente: CVE-2026-9795
+    - sha: 95aa8ce074305b0842d8af5a37985155ee225f2b
+      fuente: CVE-2026-14614
+    - sha: 9bb7a957b57db1be7d3b9f14d61ed611a9ffd67b
+      fuente: CVE-2026-45292
+    - sha: 073d2e800da18b586e95c4820a06208c60d5ef18
+      fuente: CVE-2026-16108
+    - sha: 81ada68d956b3b412741c5c8e9dbefacc3410cf9
+      fuente: CVE-2026-16105
+    - sha: 4e1c2ad52df59c74a6a4a9e4a3758a7ec29287ab
+      fuente: CVE-2026-17048
+    - sha: a569ef539a9d73e8b53634d6f368254a7052e2a8
+      fuente: CVE-2026-16100
+    - sha: 467e908ec642362925c26fa3dc92030c92f6b900
+      fuente: CVE-2026-16102
+    - sha: bdeb57f739041af094d1ead342edf26f775272de
+      fuente: CVE-2026-15572
+    - sha: 4e18ea7c45f518f73fcc72f9ba2bbc1e05a5e3dd
+      fuente: CVE-2026-16442
+    - sha: 725d8aec32cb595f31b9cce349b331b3c971285b
+      fuente: CVE-2026-15573
+    - sha: 5ec980548bed1466684a8c03ff04d4debfdb800d
+      fuente: CVE-2026-16443
+    - sha: c933d20b973d21f56d3dabf6ecec37f1cd9d743a
+      fuente: CVE-2026-16071
+    - sha: 60967c8cbe6cd5d8a852deb9dbb5ae8428adf82d
+      fuente: CVE-2026-16072
+    - sha: dc2d4e524b4dae85aedc87ca28b9e4fa567d56c1
+      fuente: CVE-2026-18963
+    - sha: 6eb0a6c4621267387b002056f08900531113f353
+      fuente: CVE-2026-16089
+    - sha: aca2fbd134d1aca5d2244832b3d51bcfa202bca9
+      fuente: CVE-2026-19607
+    - sha: c6822654bfe567d05c5c9370c93340e7afa154ff
+      fuente: CVE-2026-79651
+    - sha: a95ca69dc9e1daf52bd21eda32794f3bf4e4a492
+      fuente: CVE-2026-90997
+    - sha: 51edea26da8926b4c505a3c2d7a5b9cb6902b6bc
+      fuente: CVE-2026-18212
+    - sha: 52163fd2fdf375dccc830f87a04b91f94ccaa91e
+      fuente: CVE-2026-18217
+    - sha: 4cf1ba6396919b754806ec00afe105a56e0f0265
+      fuente: CVE-2026-74909
+    - sha: 73a58bacc608a4dfb0338c14ef3c2bdd220933a5
+      fuente: CVE-2026-94213
+    - sha: 79f40d42bb8e4ea85310439bf9d9b6eb2ce9ea6f
+      fuente: CVE-2026-94217
+    - sha: 0496d285d6d7fd9e37c06225df6111f2c2a00eab
+      fuente: CVE-2026-94215
+    - sha: 17e1425ab67ec4bed37e11bbd48b874fbcf07b4a
+      fuente: CVE-2026-15943
+    - sha: 351a4e9f7b63add9551916b7e11564b0d5ce89bd
+      fuente: CVE-2026-92358
+    - sha: bd6da60f469d0108af7f4a15b5dc1f90255a4ac2
+      fuente: CVE-2026-105305
+    - sha: 0cbbed9f94d4c6006ae6eff0d5c1479d78bba62b
+      fuente: CVE-2026-116470
+    - sha: 1316705da5d8841bc101e1adadd0e9e1b2338e87
+      fuente: CVE-2026-116468 CVE-2026-94000
+    - sha: 6cca86ea528b1152a35cf922c14021f5016b53f9
+      fuente: CVE-2026-107123
+    - sha: 10ce11e48b85493126d8f20026d6a5b7830154a9
+      fuente: CVE-2026-112201
+    - sha: bc9b1dbf2267ecaaef03a39f1b14359648ac2b34
+      fuente: CVE-2026-96447
+    - sha: 8334a4a7d9a8f03eeab3ac20b9135785ff06a352
+      fuente: CVE-2026-103112
+    - sha: d732f58a4ebb42f5de38bd78fdd709ed01bbbfdc
+      fuente: CVE-2026-107602 CVE-2026-110931
+    - sha: 58ea6b65db6877d0ea7cf12b23f678b622817be4
+      fuente: CVE-2026-82965

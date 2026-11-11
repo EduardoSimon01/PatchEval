@@ -197,7 +197,7 @@ def informe(resultado):
 
 def analizar_archivo(ruta):
     """
-    Punto de entrada desde la linea de comandos y devuelve el codigo de salida.
+    Punto de entrada desde la linea de comandos devuelve el codigo de salida.
     """
     try:
         perfiles = cargar(ruta)
@@ -208,5 +208,20 @@ def analizar_archivo(ruta):
     print(f"ANALISIS sobre {ruta}")
     print(f"  {len(perfiles)} perfiles")
 
+    print()
+    print("=" * 76)
+    print("  TODOS LOS PROYECTOS JUNTOS")
     informe(analizar(perfiles))
+
+    # Y despues sacamos cada uno por su cuenta esto hace falta para ver si el efecto se da en todos o si el proyecto que mas correcciones
+    # aporta arrastra a los demas, y porque la dispersion no es comparable entre proyectos ya que el denominador cuenta cosas distintas en cada uno.
+    nombres = sorted({p.get("proyecto", "") for p in perfiles})
+    if len(nombres) > 1:
+        for nombre in nombres:
+            solo = [p for p in perfiles if p.get("proyecto") == nombre]
+            print()
+            print("=" * 76)
+            print(f"  {nombre.upper()}  ({len(solo)} perfiles)")
+            informe(analizar(solo))
+
     return 0

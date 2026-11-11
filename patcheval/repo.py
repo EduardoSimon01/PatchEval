@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import re
 import tempfile
+from datetime import datetime
 
 import git
 
@@ -82,6 +83,9 @@ class Repositorio:
         y para se reproduzca la evaluacion con pasarle la URL basta.
         """
         self._temporal = None
+
+        # El historial se pide una sola vez por repositorio y se guarda aqui.
+        self._commits = None
 
         # El prefijo decide si hay que clonar o si ya esta en el disco.
         if str(ruta_o_url).startswith(("http://", "https://", "git@")):
@@ -298,24 +302,27 @@ class Repositorio:
         """
         return self.repo.head.commit.hexsha
 
-    def commits_ordinarios(self, desde, hasta, maximo=800):
+    def todos_los_commits(self):
         """
-        Commits de la rama actual entre dos fechas, sin fusiones.
+        Todos los commits de la rama actual, sin fusiones.
 
-        Es la materia prima de la linea base ya que son los cambios ordinarios contra los que se contrastan las correcciones de seguridad las fusiones se
-        excluyen porque su diferencia abarca todo lo que la rama incorporo asi que no son un cambio sino un paquete de cambios, y medirlas como
-        si fueran uno solo inflaria la linea base.
+        Se piden de una sola vez y se guardan porque el recorte por fecha se hace despues en Python antes se le pasaba --since y --until a git pero esas banderas 
+        no recortan la lista al final sino que le dicen a git que deje de recorrer cuando cree que ya se paso de fecha y esa decision depende de las caches internas 
+        que git regenera por su cuenta esto hacia que la linea base saliera distinta entre corridas sin que cambiara nada y como la linea base es la mitad 
+        de cada par del contraste los valores de p se movian con ella
 
-        Devuelve tuplas de (sha, marca de tiempo,autor asunto), de la mas reciente a la mas antigua.
+        Pedir la historia completa de un proyecto grande son unas decenas de miles de lineas entonces se hace una vez y se reusa.
+
+        Devuelve tuplas de (sha, marca de tiempo, autor, asunto).
         """
+        if self._commits is not None:
+            return self._commits
+
         try:
-            salida = self.repo.git.log(
-                "--no-merges",
-                f"--since={desde}", f"--until={hasta}",
-                f"--max-count={maximo}",
-                "--format=%H%x1f%ct%x1f%an%x1f%s")
+            salida = self.repo.git.log("--no-merges", "--format=%H%x1f%ct%x1f%an%x1f%s")
         except git.GitCommandError:
-            return []
+            self._commits = []
+            return self._commits
 
         encontrados = []
         for linea in salida.splitlines():
@@ -323,7 +330,26 @@ class Repositorio:
             if len(partes) == 4 and len(partes[0]) == 40:
                 encontrados.append((partes[0], int(partes[1]), partes[2], partes[3]))
 
-        return encontrados
+        self._commits = encontrados
+        return self._commits
+
+    def commits_ordinarios(self, desde, hasta, maximo=800):
+        """
+        Commits de la rama actual entre dos fechas, sin fusiones.
+
+        Es la materia prima de la linea base los cambios ordinarios contra los que se contrastan las correcciones de seguridad en este caso las fusiones se
+        excluyen porque su diferencia abarca todo lo que la rama incorporo de modo que no son un cambio sino un paquete de cambios y medirlas como
+        si fueran uno solo inflaria la linea base.
+
+        El recorte por fecha se hace aqui y no en git.
+
+        Devuelve tuplas de (sha, marca de tiempo, autor, asunto), de la mas reciente a la mas antigua.
+        """
+        ini = datetime.fromisoformat(desde).timestamp()
+        fin = datetime.fromisoformat(hasta).timestamp()
+
+        dentro = [c for c in self.todos_los_commits() if ini <= c[1] <= fin]
+        return dentro[:maximo]
 
     def archivos_de(self, sha):
         """
