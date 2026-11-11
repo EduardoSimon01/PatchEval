@@ -222,15 +222,19 @@ class Repositorio:
 
         return rangos
 
-    def commits_sobre_rango(self, ruta, inicio, fin, desde=None):
+    def commits_sobre_rango(self, ruta, inicio, fin):
         """
         Commits que a lo largo de la historia tocaron ese rango de lineas.
 
         Se apoya en el rastreo de rangos de git (log -L), que sigue las lineas aunque se desplacen dentro del archivo o se muevan a otro. Es la pieza
         que hace que la metrica de fiabilidad mire ubicaciones y no archivos completos.
 
-        El parametro desde acota la busqueda a partir de una fecha sin el, git recorre la historia completa del rango hacia atras, que puede ser de muchisimo tiempo
-        cuando lo unico que interesa es lo que vino DESPUES de la correccion.
+        No se le pasa --since aunque acotar el recorrido seria mas rapido. Git no usa esa bandera para recortar la lista al final sino para dejar de
+        recorrer la historia cuando cree que ya se paso de fecha, y esa decision depende de las fechas de los commits y de las caches que git
+        regenera por su cuenta osea que puede dejar commits afuera, y puede dejar distintos de una corrida a otra esto lo comprobamos sobre la
+        correccion 8b2f081ded el rastreo acotado perdia un commit del mismo dia que si era candidato y el resultado cambio entre dos corridas sin
+        que cambiara ni el repositorio ni el codigo. El recorte por fecha se hace en el modulo de fiabilidad, donde se compara contra la marca de
+        tiempo exacta.
 
         Devuelve tuplas de (sha, marca de tiempo, asunto) de la mas reciente a la mas antigua.
         """
@@ -238,12 +242,10 @@ class Repositorio:
             # -s suprime el parche. Sin eso, log -L imprime el diff completo de cada commit y la salida se vuelve gradisima.
             # El separador \x1f es el de unidad de ASCII no aparece en mensajes de commit.
             # %H = sha completo, %ct = fecha como marca de tiempo, %s = asunto.
-            args = [f"-L{inicio},{fin}:{ruta}", "--format=%H%x1f%ct%x1f%s", "-s"]
-            if desde:
-                args.insert(0, f"--since={desde}")
-            salida = self.repo.git.log(*args)
+            salida = self.repo.git.log(
+                f"-L{inicio},{fin}:{ruta}", "--format=%H%x1f%ct%x1f%s", "-s")
         except git.GitCommandError:
-            # Falla cuando el archivo no existe en la HEAD por ejemplo si se renombro despues de la correccion. 
+            # Falla cuando el archivo no existe en la HEAD por ejemplo si se renombro despues de la correccion.
             return []
 
         encontrados = []
@@ -256,22 +258,33 @@ class Repositorio:
         return encontrados
 
     # ------------------------------------------------------------------
-    def servicios(self, sha=None):
+    def servicios(self, sha=None, raiz=""):
         """
         Aproximacion de los servicios del sistema.
 
-        Se toman los directorios de primer nivel, descontando los que por convencion no contienen servicios. Es una aproximacion y esta
-        declarada como limitacion: un proyecto que no organice asi sus servicios hace que la dispersion pierda precision.
+        Se toman los directorios de primer nivel descontando los que por convencion no contienen servicios con eso se tiene una aproximacion y esta
+        declarada como limitacion porque si usa con un proyecto que no organice asi sus servicios hace que la dispersion pierda precision.
 
-        El parametro sha importa: se cuenta el sistema tal como estaba en el momento de la correccion, no como esta hoy. Un repositorio pudo haber
+        El parametro raiz existe porque no todos los proyectos agrupan igual eb el caso de Argo CD pone sus servicios en la raiz del repositorio pero Harbor los
+        mete todos bajo una carpeta llamada src y sin esto la dispersion de Harbor daria siempre uno sobre cuatro o algo asi lo cual no dice nada entonces la raiz 
+        se declara por proyecto en el archivo del corpus y queda registrada con el resultado.
+
+        El parametro sha importa ya que se cuenta el sistema tal como estaba en el momento de la correccion no como esta hoy porque un repositorio pudo haber
         ganado o perdido servicios desde entonces, y eso cambiaria el denominador de la dispersion.
         """
-        ref = sha or self.repo.head.commit.hexsha
+        ref = sha or self.sha_actual()
         arbol = self.repo.commit(ref).tree
+
+        if raiz:
+            try:
+                arbol = arbol / raiz
+            except KeyError:
+                # La carpeta declarada no existia todavia en ese punto de la historia entonces es mejor devolver vacio que medir contra la raiz equivocada.
+                return []
 
         # .trees son los subdirectorios y .blobs serian los archivos sueltos de la raiz que no nos interesan.
         return [t.name for t in arbol.trees if t.name not in _NO_SON_SERVICIOS]
-
+    
     def sha_actual(self):
         """
         Identificador del estado del repositorio en este momento.

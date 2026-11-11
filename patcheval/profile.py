@@ -75,6 +75,10 @@ class Perfil:
     # las filas ordinarias quedan sueltas en el csv y la prueba de rangos con signo, que compara pares, no se puede armar.
     pareja: str = ""
 
+    # La carpeta bajo la cual se contaron los servicios viaja con el resultado porque cambia el denominador de la dispersion y sin saberla el
+    # numero no se puede comparar entre proyectos.
+    raiz_servicios: str = ""
+
     def como_diccionario(self):
         """Para escribirlo a disco y no tener que volver a medir."""
         return asdict(self)
@@ -91,7 +95,7 @@ def densidad_decision(delta_ccn, lineas_agregadas):
     return round(100 * delta_ccn / lineas_agregadas, 2)
 
 
-def construir(repo, correccion, proyecto="", tipo="seguridad", fuente="", pareja=""):
+def construir(repo, correccion, proyecto="", tipo="seguridad", fuente="", pareja="", raiz_servicios=""):
     """
     Corre las cuatro mediciones sobre una misma correccion y arma su perfil.
 
@@ -99,7 +103,7 @@ def construir(repo, correccion, proyecto="", tipo="seguridad", fuente="", pareja
     se tarda un poco y va de ultima para que si algo revienta antes, reviente barato.
     """
     s = complexity.medir(repo, correccion)
-    disp = dispersion.medir(repo, correccion)
+    disp = dispersion.medir(repo, correccion, raiz_servicios)
     g = deployment.medir(repo, correccion)
     e = reliability.medir(repo, correccion)
 
@@ -147,4 +151,6 @@ def construir(repo, correccion, proyecto="", tipo="seguridad", fuente="", pareja
         tipo=tipo,
         fuente=fuente,
         pareja=pareja,
+
+        raiz_servicios=raiz_servicios,
     )

@@ -64,6 +64,7 @@ def evaluar(entradas):
     for entrada in entradas:
         nombre = entrada.get("proyecto", "")
         ruta = entrada.get("ruta", "")
+        raiz = str(entrada.get("raiz_servicios", "") or "")
 
         try:
             repo = Repositorio(ruta)
@@ -74,7 +75,7 @@ def evaluar(entradas):
         for sha, fuente in normalizar(entrada.get("correcciones")):
             try:
                 c = repo.cargar_correccion(sha)
-                perfiles.append(profile.construir(repo, c, proyecto=nombre, fuente=fuente))
+                perfiles.append(profile.construir(repo, c, proyecto=nombre, fuente=fuente, raiz_servicios=raiz))
                 print(f"  medido  {nombre} {sha}")
             except Exception as exc:
                 fallas.append((nombre, sha, str(exc)))
@@ -88,8 +89,7 @@ def evaluar(entradas):
             for sha, asunto, pareja in baseline.seleccionar(repo, de_seguridad, cantidad):
                 try:
                     c = repo.cargar_correccion(sha)
-                    perfiles.append(profile.construir(
-                        repo, c, proyecto=nombre, tipo="ordinaria", pareja=pareja))
+                    perfiles.append(profile.construir(repo, c, proyecto=nombre, tipo="ordinaria", pareja=pareja, raiz_servicios=raiz))
                     print(f"  base    {nombre} {sha[:10]} {asunto[:45]}")
                 except Exception as exc:
                     fallas.append((nombre, sha, str(exc)))
@@ -124,7 +124,7 @@ def tabla(perfiles):
 # Las columnas de la exportacion. Se declaran en orden fijo para que dos corridas produzcan archivos comparables y para que agregar un campo al perfil
 # no cambie en silencio la forma de la tabla.
 CAMPOS_CSV = (
-    "proyecto", "tipo", "sha", "fecha", "fuente", "pareja",
+    "proyecto", "tipo", "sha", "fecha", "fuente", "pareja", "raiz_servicios",
     "archivos", "lineas_agregadas", "lineas_eliminadas",
     "archivos_codigo", "ccn_antes", "ccn_despues", "delta_ccn", "densidad_decision",
     "servicios_afectados", "servicios_totales", "proporcion_servicios",

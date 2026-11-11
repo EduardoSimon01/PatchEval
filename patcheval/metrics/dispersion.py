@@ -14,26 +14,48 @@ def es_manifiesto(ruta):
     # No agarra archivos de codigo porque queremos ver un cambio que solo toca manifiestos.
     return PurePosixPath(ruta).suffix.lower() in {".yaml", ".yml"}
 
+def servicio_de(ruta, conocidos, raiz=""):
+    """
+    Dice a que servicio pertenece un archivo o None si no pertenece a ninguno.
 
-def medir(repo, correccion):
+    Sale aparte de medir para poder probarla sin repositorio que es donde estan los casos raros archivos sueltos en la raiz o  archivos fuera de la
+    carpeta declarada o carpetas que no estan en la lista de servicios, etc.
+    """
+    partes = PurePosixPath(ruta).parts
+
+    if raiz:
+        tramos = PurePosixPath(raiz).parts
+        # Lo que cae fuera de la carpeta declarada decimos que no pertenece a ningun servicio por ejemplo en Harbor la documentacion vive fuera de src.
+        if partes[:len(tramos)] != tramos:
+            return None
+        partes = partes[len(tramos):]
+
+    # Un archivo suelto sin carpeta propiano cuenta como servicio.
+    if len(partes) > 1 and partes[0] in conocidos:
+        return partes[0]
+
+    return None
+
+
+def medir(repo, correccion, raiz=""):
     """
     Calcula la proporcion de servicios que la correccion alcanzo.
 
-    Los servicios se aproximan por los directorios de primer nivel, con todo lo que eso implica y que ya esta declarado como limitacion.
+    Los servicios se aproximan por los directorios de primer nivel de la carpeta declarada con todo lo que eso implica y que ya esta declarado como
+    limitacion.
     """
-    # El total se pide en el punto de la correccion y no en la HEAD porque si el proyecto gano servicios despues, usar la HEAD inflaria el denominador 
+    # El total se pide en el punto de la correccion y no en la HEAD porque si el proyecto gano servicios despues usar la HEAD inflaria el denominador
     # y haria que pareciera mas contenida de lo que fue una correccion vieja.
-    todos = repo.servicios(correccion.sha)
+    todos = repo.servicios(correccion.sha, raiz)
 
     alcanzados = set()
     for a in correccion.archivos:
-        # Primer tramo de la ruta tal como git la reporta los archivos que solo estan en la raiz no tiene carpeta, asi que no cuenta como servicio.
-        partes = PurePosixPath(a.ruta).parts
-        if len(partes) > 1 and partes[0] in todos:
-            alcanzados.add(partes[0])
+        s = servicio_de(a.ruta, todos, raiz)
+        if s:
+            alcanzados.add(s)
 
     total = len(todos)
-    # El max(total, 1) evita dividir entre cero. Pasa con repos que tienen todo en la raiz, que es raro pero puede pasar.
+    # El max(total, 1) evita dividir entre cero esto pasa con repos que tienen todo en la raiz es raro pero puede pasar.
     proporcion = round(len(alcanzados) / max(total, 1), 4)
 
     manifiestos = [a.ruta for a in correccion.archivos if es_manifiesto(a.ruta)]
@@ -44,4 +66,5 @@ def medir(repo, correccion):
         "proporcion": proporcion,
         "cuales": sorted(alcanzados),
         "manifiestos_modificados": len(manifiestos),
+        "raiz_servicios": raiz,
     }

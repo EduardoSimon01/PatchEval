@@ -1,16 +1,16 @@
 # Correcciones sobre las que se aplica el marco.
 #
-# Cada entrada es un proyecto, la ruta de su clon y las correcciones a evaluar.
-# Las rutas son relativas a la raiz del proyecto para que el archivo sirva
+# Cada entrada es un proyecto la ruta de su clon y las correcciones a evaluar recordar que las rutas son relativas a la raiz del proyecto para que el archivo sirva
 # igual en cualquier maquina.
-#
-# Cada correccion lleva la fuente que la respalda: el identificador del aviso
-# publicado. Esa es la diferencia entre un corpus declarado y una lista de
+
+# Cada correccion lleva la fuente que la respalda es decir el identificador del aviso publicado esa es la diferencia entre un corpus declarado y una lista de
 # commits que alguien escogio.
-#
-# linea_base dice cuantos cambios ordinarios tomar por cada correccion, para
-# contrastar. La seleccion la hace el prototipo con un criterio declarado, no
-# a mano.
+
+# linea_base dice cuantos cambios ordinarios tomar por cada correccion esto para contrastar y la seleccion la hace el prototipo con un criterio declarado no
+# se hace a mano.
+
+# raiz_servicios dice bajo que carpeta agrupa sus servicios el proyecto esto se deja vacio o se omite cuando estan en la raiz del repositorio como en
+# Argo CD y se declara cuando no como en Harbor que los mete bajo src.
 
 - proyecto: argo-cd
   ruta: corpus/argo-cd
