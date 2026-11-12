@@ -127,7 +127,8 @@ def main(argv=None):
         print(f"      ? [{cand['senal']}] {cand['mensaje'][:58]}")
 
     print()
-    print("  La clasificacion del conjunto entra en el hito H5.")
+    print()
+    print("  La clasificacion del conjunto sale con --corpus, que la calcula sobre el conjunto completo.")
 
     return 0
 
